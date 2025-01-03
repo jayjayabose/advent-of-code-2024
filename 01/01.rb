@@ -1,21 +1,4 @@
-module DataReader
-    FILE_NAME = '01_input.txt'
-
-    def self.get_lists
-        array_one = []
-        array_two = []
-
-        lines = File.readlines(FILE_NAME)
-
-        lines.each do |line|
-            one, two = line.split
-            array_one << one.to_i
-            array_two << two.to_i
-        end
-
-        [array_one, array_two]
-    end
-end
+require_relative 'data_reader'
 
 def total_distance(list_one, list_two)
     list_one = list_one.sort
@@ -26,5 +9,8 @@ def total_distance(list_one, list_two)
     end
 end
 
-array_one, array_two = DataReader.get_lists
+test_one, test_two = DataReader::get_test_lists
+puts total_distance(test_one, test_two) == 11
+
+array_one, array_two = DataReader::get_lists
 puts total_distance(array_one, array_two)
