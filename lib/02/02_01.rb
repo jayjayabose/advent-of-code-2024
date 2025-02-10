@@ -99,12 +99,12 @@ class ReportCreator
 end
 
 class Report
-  attr_reader :levels, :change_direction
+  attr_reader :levels, :level_change_direction
 
   # @param levels: [Array <Number>] - list of levels reprsented as Numbers
   def initialize(levels:)
     @levels = levels
-    @change_direction = set_change_diirection
+    @level_change_direction = set_change_diirection
   end
 
   # @return [Boolean] - true levels do not violate safety rules, otherwise false
@@ -128,13 +128,16 @@ class Report
   end
 
   def safety_violation?(previous_level:, current_level:)
-    return true if no_change_violation?(previous_level:, current_level:)
-    return true if large_change_violation?(previous_level:, current_level:)
-    return true if change_direction_violation?(previous_level:, current_level:)
+    if level_does_not_change_violation?(previous_level:, current_level:) ||
+        large_change_violation?(previous_level:, current_level:) ||
+        level_change_direction_violation?(previous_level:, current_level:)
+      return true
+    end
+
     false
   end
 
-  def no_change_violation?(previous_level:, current_level:)
+  def level_does_not_change_violation?(previous_level:, current_level:)
     current_level == previous_level
   end
 
@@ -142,10 +145,16 @@ class Report
     (current_level - previous_level).abs >= 4
   end
 
-  def change_direction_violation?(previous_level:, current_level:)
-    return false if change_direction.nil?
-    return true if change_direction == :increasing && previous_level > current_level
-    return true if change_direction == :decreasing && previous_level < current_level
+  def level_change_direction_violation?(previous_level:, current_level:)
+    return false if level_change_direction.nil?
+
+    level_decreased = previous_level > current_level
+    level_increased = previous_level < current_level
+
+    if (level_change_direction == :increasing && level_decreased) ||
+        (level_change_direction == :decreasing && level_increased)
+      return true
+    end
     false
   end
 end
